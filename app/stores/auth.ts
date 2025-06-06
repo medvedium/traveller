@@ -1,20 +1,28 @@
-import { create } from 'zustand';
+import { create, type StateCreator } from 'zustand';
 import { getUser, loginUser, logoutUser } from '~/lib/user';
 
-interface AuthState {
-  user: any | null;
-  isAuthenticated: boolean;
-  loading: boolean;
+interface IActions {
   fetchUser: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+interface IInitialState {
+  user: any | null;
+  isAuthenticated: boolean;
+  loading: boolean;
+}
+
+interface IStoreState extends IInitialState, IActions {}
+
+const initialState: IInitialState = {
   user: null,
   isAuthenticated: false,
   loading: true,
+};
 
+const userStore: StateCreator<IStoreState> = (set) => ({
+  ...initialState,
   // Метод для загрузки состояния пользователя
   fetchUser: async () => {
     try {
@@ -48,11 +56,21 @@ export const useAuthStore = create<AuthState>((set) => ({
       throw error; // Можно выбросить ошибку для обработки в компоненте
     }
   },
-}));
+});
 
-export const useIsAuthenticated = () => {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const loading = useAuthStore((state) => state.loading);
+export const useAuthStore = create<IStoreState>()(userStore);
 
-  return { isAuthenticated, loading };
-};
+// export const useIsAuthenticated = () => {
+//   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+//   const loading = useAuthStore((state) => state.loading);
+
+//   return { isAuthenticated, loading };
+// };
+
+export const isAuthenticated = () => useAuthStore((state) => state.isAuthenticated);
+export const storeUser = () => useAuthStore((state) => state.user);
+export const isLoading = () => useAuthStore((state) => state.loading);
+export const fetchUser = () => useAuthStore.getState().fetchUser;
+export const login = (email: string, password: string) =>
+  useAuthStore.getState().login(email, password);
+export const logout = () => useAuthStore.getState().logout();

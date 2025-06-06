@@ -12,6 +12,8 @@ import './app.css';
 import Navbar from './components/Navbar';
 import { useAuthStore } from '~/stores/auth';
 import { useEffect } from 'react';
+import { ConfigProvider, theme } from 'antd';
+import { useThemeStore } from '~/stores/themeStore';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -27,19 +29,45 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const { mode, setTheme } = useThemeStore();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedTheme = localStorage.getItem('theme');
+      if (storedTheme === 'dark' || storedTheme === 'light') {
+        setTheme(storedTheme);
+      }
+    }
+  }, [setTheme]);
+
+  useEffect(() => {
+    if (mode === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [mode]);
+
   return (
     <html lang='en'>
       <head>
         <meta charSet='utf-8' />
         <meta name='viewport' content='width=device-width, initial-scale=1' />
+        <title>Traveller</title>
         <Meta />
         <Links />
       </head>
-      <body>
-        <Navbar />
-        {children}
-        <ScrollRestoration />
-        <Scripts />
+      <body className='dark:bg-slate-700'>
+        <ConfigProvider
+          theme={{
+            algorithm: mode === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm, // Включает тёмную тему
+          }}
+        >
+          <Navbar />
+          {children}
+          <ScrollRestoration />
+          <Scripts />
+        </ConfigProvider>
       </body>
     </html>
   );

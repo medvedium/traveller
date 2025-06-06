@@ -1,7 +1,8 @@
+import { Button, Input } from 'antd';
 import { useState } from 'react';
-import { type SubmitHandler, useForm } from 'react-hook-form';
+import { useForm, Controller, type SubmitHandler } from 'react-hook-form';
 import { useNavigate } from 'react-router';
-import { useAuthStore } from '~/stores/auth';
+import { isLoading, login } from '~/stores/auth';
 
 type Inputs = {
   email: string;
@@ -12,57 +13,74 @@ const AuthForm = () => {
   const [error, setError] = useState<string | null>(null);
 
   const {
-    register,
+    control,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<Inputs>();
 
   const navigate = useNavigate();
-  const {login, loading} = useAuthStore()
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    setError(null)
+    setError(null);
     try {
-      await login(data.email, data.password); // Выполняем вход
-      navigate('/'); // Перенаправляем на главную страницу
+      await login(data.email, data.password);
+      navigate('/');
     } catch (err) {
       setError('Неверный email или пароль');
     }
   };
 
-  if (loading) {
-    return <div className="loader">Loading...</div>
+  if (isLoading()) {
+    return <div className='loader'>Loading...</div>;
   }
 
   return (
-    <div>
-      <form onSubmit={handleSubmit(onSubmit)}>
+    <div className='max-w-md mx-auto mt-10 p-6 border rounded-lg shadow-lg'>
+      <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-4'>
         <div>
-          <input
-            className={`border-1 ${errors.email && 'border-red-500'}`}
-            {...register('email', {
-              required: true,
-              onChange: () => setError(null),
-            })}
+          <Controller
+            name='email'
+            control={control}
+            rules={{ required: 'Обязательное поле' }}
+            render={({ field }) => (
+              <Input
+                {...field}
+                placeholder='Email'
+                status={errors.email && 'error'}
+                className='dark:text-white'
+                onChange={(e) => {
+                  field.onChange(e);
+                  setError(null);
+                }}
+              />
+            )}
           />
-          {errors.email && <span>This field is required</span>}
         </div>
+
         <div>
-          <input
-            type='password'
-            className={`border-1 ${errors.password && 'border-red-500'}`}
-            {...register('password', {
-              required: true,
-              onChange: () => setError(null),
-            })}
+          <Controller
+            name='password'
+            control={control}
+            rules={{ required: 'Обязательное поле' }}
+            render={({ field }) => (
+              <Input.Password
+                {...field}
+                placeholder='Password'
+                status={errors.password && 'error'}
+                onChange={(e) => {
+                  field.onChange(e);
+                  setError(null);
+                }}
+              />
+            )}
           />
-          {errors.password && <span>This field is required</span>}
         </div>
-        <div>{error && <span className='text-red-500'>{error}</span>}</div>
-        <button className='border-1' type='submit'>
+
+        {error && <span className='text-red-500'>{error}</span>}
+
+        <Button type='primary' htmlType='submit'>
           Log In
-        </button>
+        </Button>
       </form>
     </div>
   );

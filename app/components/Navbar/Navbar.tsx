@@ -1,43 +1,75 @@
-import { NavLink, useNavigate } from 'react-router';
-import { useAuthStore } from '~/stores/auth';
+import { Button, Menu, Switch } from 'antd';
+import type { MenuProps } from 'antd';
+import { NavLink, useLocation, useNavigate } from 'react-router';
+import { isAuthenticated, logout } from '~/stores/auth';
+import Logo from '~/components/Logo';
+import { useThemeStore } from '~/stores/themeStore';
 
 const Navbar = () => {
-  const { isAuthenticated, logout } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { mode, toggleTheme } = useThemeStore();
 
   const handleLogout = async () => {
     try {
-      await logout(); // Выполняем выход
-      navigate('/auth'); // Перенаправляем на страницу входа
+      await logout();
+      navigate('/auth');
     } catch (error) {
       console.error('Ошибка при выходе:', error);
     }
   };
 
+  const menuItems: MenuProps['items'] = isAuthenticated()
+    ? [
+        {
+          key: '/',
+          label: <NavLink to='/'>Home</NavLink>,
+        },
+        {
+          key: '/about',
+          label: <NavLink to='/about'>About</NavLink>,
+        },
+        {
+          key: '/profile',
+          label: <NavLink to='/profile'>Profile</NavLink>,
+        },
+        {
+          key: 'logout',
+          label: (
+            <Button type='link' danger onClick={handleLogout}>
+              Logout
+            </Button>
+          ),
+        },
+      ]
+    : [];
 
   return (
-    <div className='container flex justify-between py-4'>
-      <nav className='flex gap-4 text-blue-300'>
-        <NavLink to={'/'}>Home page</NavLink>
-        {isAuthenticated && (
+    <div className='flex justify-between px-6 py-3 mb-4 container'>
+      <NavLink to='/' className='flex items-center gap-2'>
+        <Logo />
+      </NavLink>
+
+      <div className='flex flex-1 justify-end items-center gap-2'>
+        {isAuthenticated() ? (
+          <Menu
+            mode='horizontal'
+            selectedKeys={[location.pathname]}
+            items={menuItems}
+            style={{ flexGrow: 1, justifyContent: 'flex-end', minWidth: 0, border: 'none' }}
+          />
+        ) : (
           <>
-            <NavLink to={'/about'}>About</NavLink>
-            <NavLink to={'/profile'}>Profile</NavLink>
+            <Button type='default' onClick={() => navigate('/auth')}>
+              Auth
+            </Button>
+            <Button type='primary' onClick={() => navigate('/register')}>
+              Register
+            </Button>
           </>
         )}
-      </nav>
-      {isAuthenticated ? (
-        <button className='border-1 cursor-pointer bg-slate' onClick={handleLogout}>
-          Logout
-        </button>
-      ) : (
-        <div className='flex gap-4'>
-          <NavLink to={'/auth'}>Auth</NavLink>
-          |
-          <NavLink to={'/register'}>Register</NavLink>
-        </div>
-
-      )}
+        <Switch checked={mode === 'dark'} onChange={toggleTheme} />
+      </div>
     </div>
   );
 };
