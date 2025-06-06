@@ -18,7 +18,7 @@
     --foreground: #141414;
 }
 
-:root .dark {
+.dark {
     --background: #141414;
     --foreground: #ededed;
 }
@@ -27,6 +27,7 @@ body {
     color: var(--foreground);
     background: var(--background);
     font-family: Arial, Helvetica, sans-serif;
+    min-height: 100vh;
 }
 
 
@@ -41,15 +42,4 @@ input:-webkit-autofill:active {
     .dark & {
         -webkit-text-fill-color: var(--foreground) !important;
     }
-}
-
-html,
-body {
-    @apply bg-white dark:bg-[#141414];
-
-    /*@media (prefers-color-scheme: dark) {*/
-    /*    color-scheme: dark;*/
-    /*}*/
-
-    min-height: 100vh;
 }
