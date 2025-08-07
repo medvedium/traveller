@@ -16,11 +16,13 @@
 :root {
     --background: #ffffff;
     --foreground: #141414;
+    --link-color: #1677ff;
 }
 
 .dark {
     --background: #141414;
     --foreground: #ededed;
+    --link-color: #1668dc;
 }
 
 body {
@@ -42,4 +44,8 @@ input:-webkit-autofill:active {
     .dark & {
         -webkit-text-fill-color: var(--foreground) !important;
     }
+}
+
+a {
+    color: var(--link-color);
 }

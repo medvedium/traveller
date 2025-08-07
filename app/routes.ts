@@ -7,6 +7,11 @@ export default [
 
   layout('routes/protected.tsx', [
     route('about', 'routes/about.tsx'),
-    route('profile', 'routes/profile.tsx')
+    layout('routes/profile/profile-layout.tsx', [
+      route('profile', 'routes/profile/profile.tsx'),
+      route('profile/add-travel', 'routes/profile/add-travel.tsx'),
+      route('profile/travels', 'routes/profile/travels.tsx'),
+      route('profile/edit', 'routes/profile/edit.tsx'),
+    ]),
   ]),
 ] satisfies RouteConfig;

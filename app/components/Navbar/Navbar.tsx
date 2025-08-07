@@ -10,10 +10,13 @@ const Navbar = () => {
   const location = useLocation();
   const { mode, toggleTheme } = useThemeStore();
 
+  const currentPath = location.pathname;
+
   const handleLogout = async () => {
     try {
-      await logout();
-      navigate('/auth');
+      await logout().then(() => {
+        navigate('/auth');
+      })
     } catch (error) {
       console.error('Ошибка при выходе:', error);
     }
@@ -21,28 +24,33 @@ const Navbar = () => {
 
   const menuItems: MenuProps['items'] = isAuthenticated()
     ? [
-        {
-          key: '/',
-          label: <NavLink to='/'>Home</NavLink>,
-        },
-        {
-          key: '/about',
-          label: <NavLink to='/about'>About</NavLink>,
-        },
-        {
-          key: '/profile',
-          label: <NavLink to='/profile'>Profile</NavLink>,
-        },
-        {
-          key: 'logout',
-          label: (
-            <Button type='link' danger onClick={handleLogout}>
-              Logout
-            </Button>
-          ),
-        },
-      ]
+      {
+        key: '/',
+        label: <NavLink to='/'>Главная</NavLink>,
+      },
+      {
+        key: '/about',
+        label: <NavLink to='/about'>О сервисе</NavLink>,
+      },
+      {
+        key: '/profile',
+        label: <NavLink to='/profile'>Профиль</NavLink>,
+      },
+      {
+        key: 'logout',
+        label: (
+          <Button type='link' danger onClick={handleLogout}>
+            Выйти
+          </Button>
+        ),
+      },
+    ]
     : [];
+
+  const selectedKey = menuItems
+    .map((item) => (item ? item.key : undefined))
+    .filter((key): key is string => typeof key === 'string' && !!key && currentPath.startsWith(key))
+    .sort((a, b) => b.length - a.length)[0];
 
   return (
     <div className='flex justify-between px-6 py-3 mb-4 container'>
@@ -54,7 +62,7 @@ const Navbar = () => {
         {isAuthenticated() ? (
           <Menu
             mode='horizontal'
-            selectedKeys={[location.pathname]}
+            selectedKeys={[selectedKey]}
             items={menuItems}
             style={{ flexGrow: 1, justifyContent: 'flex-end', minWidth: 0, border: 'none' }}
           />

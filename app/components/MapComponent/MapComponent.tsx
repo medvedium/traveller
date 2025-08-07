@@ -45,15 +45,6 @@ const MapComponent = () => {
         instanceRef={mapRef}
         onLoad={handleMapLoad}
       >
-        {/* {isAuthenticated ? (
-                    placemarks.map((coords, idx) => (
-                        <Placemark key={idx} geometry={coords} />
-                    ))
-                ) : (
-                    <div style={{ textAlign: "center", marginTop: "1rem" }}>
-                        Пожалуйста, войдите, чтобы увидеть метки.
-                    </div>
-                )} */}
         {isAuthenticated() && (
           <Clusterer options={{ preset: 'islands#invertedVioletClusterIcons' }}>
             {placemarks.map((coords, idx) => (

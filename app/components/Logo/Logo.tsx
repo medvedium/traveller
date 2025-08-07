@@ -17,7 +17,7 @@ const Logo = () => {
         />
         <circle cx='100' cy='100' r='95' fill='none' stroke='#1B5E20' strokeWidth='3' />
       </svg>
-      <span style={{ color: 'currentColor' }}>Traveller</span>
+      <span className='text-black dark:text-white'>Traveller</span>
     </>
   );
 };
